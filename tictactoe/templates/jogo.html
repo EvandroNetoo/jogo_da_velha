@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block 'title' %}Partida{% endblock %}
+
+{% block 'head' %}
+<style type="text/css">
+    button {
+        width: 100px;
+        height: 100px;
+        font-size: 50px;
+        padding: 0;
+        border: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(240, 240, 240);
+
+    }
+
+    button:disabled {
+        color: black;
+        background-color: rgb(240, 240, 240);
+    }
+
+    button:hover {
+        background-color: rgb(230, 230, 230);
+    }
+
+    button:hover:disabled {
+        background-color: rgb(240, 240, 240);
+    }
+
+    #tabuleiro div {
+        gap: 5px;
+        justify-content: flex-start;
+        background-color: black;
+    }
+    .card {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+
+{% block 'body' %}
+<div class="text-center">
+    <h1>Jogo da Velha</h1>
+    <br>
+    <div id="tabuleiro" style="display: none">
+        <div style="display: flex; padding-bottom: 5px">
+            <button id="00" name="botao_jogo"></button>
+            <button id="01" name="botao_jogo"></button>
+            <button id="02" name="botao_jogo"></button>
+        </div>
+        <div style="display: flex">
+            <button id="10" name="botao_jogo"></button>
+            <button id="11" name="botao_jogo"></button>
+            <button id="12" name="botao_jogo"></button>
+        </div>
+        <div style="display: flex; padding-top: 5px">
+            <button id="20" name="botao_jogo"></button>
+            <button id="21" name="botao_jogo"></button>
+            <button id="22" name="botao_jogo"></button>
+        </div>
+    </div>
+
+    <div id="waiting" style="display: none">
+        <h3>Esperando adversário entrar na sala.</h3>
+    </div>
+
+</div>
+<div class="text-center">
+    <br>
+    <div class="text-center" style="display:inline-block">
+
+        <div class="card text-bg-success mb-3" style="max-width: 18rem;" id="venceu">
+            <div class="card-header">Venceu</div>
+            <div class="card-body">
+                <h5 class="card-title">Parabéns! você venceu</h5>
+                <a class="card-text btn btn-secondary btn-md" href="{% url 'home' %}">Voltar</a>
+            </div>
+        </div>
+
+        <div class="card text-bg-danger mb-3" style="max-width: 18rem;" id="perdeu">
+            <div class="card-header">Perdeu</div>
+            <div class="card-body">
+                <h5 class="card-title">Não foi dessa vez!</h5>
+                <a class="card-text btn btn-secondary btn-md" href="{% url 'home' %}">Voltar</a>
+            </div>
+        </div>
+
+        <div class="card text-bg-secondary mb-3" style="max-width: 18rem;" id="tie">
+            <div class="card-header">Empatou</div>
+            <div class="card-body">
+                <h5 class="card-title">Quase! Ocorreu um empate</h5>
+                <a class="card-text btn btn-secondary btn-md" href="{% url 'home' %}">Voltar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    var GameSocket = new WebSocket("ws://127.0.0.1:8000/ws/partida/{{ code }}")
+
+    const botoes = document.querySelectorAll('button[name="botao_jogo"]');
+
+    function render_tabuleiro(tabuleiro) {
+        botoes.forEach(botao => {
+            const idBotao = botao.id;
+            botao.textContent = tabuleiro[idBotao[0]][idBotao[1]]
+            if (tabuleiro[idBotao[0]][idBotao[1]] != ' ') {
+                botao.disabled = true
+            }
+        });
+
+    }
+
+
+    GameSocket.onmessage = function (event) {
+        const data = JSON.parse(event.data)
+        console.log(data)
+        if (data.type == 'waiting') {
+            document.getElementById('tabuleiro').style.display = 'none'
+            document.getElementById('waiting').style.display = 'block'
+
+        } else if (data.type == 'start') {
+            document.getElementById('tabuleiro').style.display = 'inline-block'
+            document.getElementById('waiting').style.display = 'none'
+
+        } else if (data.type == 'play') {
+            render_tabuleiro(data.tabuleiro)
+
+        } else {
+            GameSocket = NaN
+            document.getElementById(data.type).style.display = 'block'
+        }
+    }
+
+    // Adicionar listener de evento para cada botão
+    botoes.forEach(botao => {
+        botao.addEventListener('click', () => {
+            const idBotao = botao.id; // Capturar ID do botão clicado
+            GameSocket.send(JSON.stringify({
+                'position': idBotao
+            }))
+        });
+    });
+</script>
+{% endblock %}

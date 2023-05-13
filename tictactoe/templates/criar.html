@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block 'title' %}Criar sala{% endblock %}
+
+{% block 'body' %}
+<div class="container">
+
+    {% if messages %}
+    <br>
+    {% for message in messages %}
+    <div class="alert {{message.tags}}">
+        {{message}}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <h1 class="text-center">Crie sua sala</h1>
+    <hr>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+
+        <div class="col-md">
+            <form action="{% url 'criar' %}" method="post">{% csrf_token %}
+                <div class="text-center">
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="radios" id="btnradiopubl" autocomplete="off"
+                            checked>
+                        <label class="btn btn-outline-primary" for="btnradiopubl">Pública</label>
+
+                        <input type="radio" class="btn-check" name="radios" id="btnradiopriv" autocomplete="off">
+                        <input type="hidden" name="privada" id="privada">
+                        <label class="btn btn-outline-primary" for="btnradiopriv">Privada</label>
+                    </div>
+                    <br>
+                    <div id="senha" style="display: none;">
+                        <br>
+                        <input class="form-control" type="text" placeholder="Senha" name="senha">
+                    </div>
+                    <br>
+                    <button class="btn btn-outline-success">Criar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4"></div>
+    </div>
+
+</div>
+
+<script>
+    var check_priv = document.getElementById('btnradiopriv')
+    var check_publ = document.getElementById('btnradiopubl')
+    var div_senha = document.getElementById('senha')
+    var inp_priv = document.getElementById('privada')
+
+    check_priv.addEventListener('change', function() {
+        if (this.checked) {
+            div_senha.style.display = 'block'
+            inp_priv.value = true
+        }
+    })
+
+    check_publ.addEventListener('change', function() {
+        if (this.checked) {
+            div_senha.style.display = 'none'
+            inp_priv.value = false
+        }
+    })
+
+</script>
+
+{% endblock %}

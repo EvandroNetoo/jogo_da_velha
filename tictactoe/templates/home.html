@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block 'title' %}Home{% endblock %}
+
+{% block 'body' %}
+<div class="container">
+
+    {% if messages %}
+    <br>
+    {% for message in messages %}
+    <div class="alert {{message.tags}}">
+        {{message}}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <h1 class="text-center">Seja bem vindo</h1>
+    <hr>
+    <div class="row">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Crie uma sala privada</h5>
+                    <p class="card-text">Crie uma sala e chame um amigo para entrar para se divertirem.</p>
+                    <a href="{% url 'criar' %}" class="btn btn-primary">Criar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Entre em uma sala</h5>
+                    <p class="card-text">Entre em uma sala que algum amigo criou para se divertirem.</p>
+                    <a href="{% url 'entrar' %}" class="btn btn-primary">Entrar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
