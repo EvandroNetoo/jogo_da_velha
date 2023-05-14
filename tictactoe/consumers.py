@@ -75,7 +75,6 @@ class GameConsumer(WebsocketConsumer):
             )
             room.save()
         else:
-            room.save()
             self.disconnect()
             
 

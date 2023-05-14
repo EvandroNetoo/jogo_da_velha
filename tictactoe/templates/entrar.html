@@ -27,42 +27,75 @@
 {% block 'body' %}
 <div class="container">
 
+    <h1 class="text-center">Entre em uma sala</h1>
+    <hr>
     {% if messages %}
     <br>
     {% for message in messages %}
-    <div class="alert {{message.tags}}">
-        {{message}}
+    <div class="alert {{message.tags}} alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endfor %}
     {% endif %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col" style="width: 300px;">Nome</th>
+                <th scope="col" class="text-center">Entrar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if not rooms %}
+            <tr>
+                <td style="width: 300px;">Nenhuma sala encontrada</td>
+                <td class="text-center"><a href="{% url 'criar' %}">Criar</a></td>
+            </tr>
+            {% endif %}
 
-    <h1 class="text-center">Entre em uma sala</h1>
-    <hr>
-    <div class="text-center">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col" style="width: 300px;">Nome</th>
-                    <th scope="col" class="text-center">Entrar</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if not rooms %}
-                <tr>
-                    <td style="width: 300px;">Nenhuma sala encontrada</td>
-                    <td class="text-center"><a href="{% url 'criar' %}">Criar</a></td>
-                </tr>
-                {% endif %}
+            {% for room in rooms %}
+            {% if not room.privada %}
+            <tr>
+                <td style="width: 300px;">Sala de {{ room.dono }}</td>
+                <td class="text-center"><a class="link-opacity-100" href="{% url 'room' room.code %}">Entrar</a></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td style="width: 300px;">Sala de {{ room.dono }}</td>
+                <td class="text-center">
+                    <a type="button" class="link-opacity-100" data-bs-toggle="modal"
+                        data-bs-target="#room-modal-{{ room.id }}">Entrar</a>
+                </td>
+            </tr>
 
-                {% for room in rooms %}
-                <tr>
-                    <td style="width: 300px;">{{ room.code }}</td>
-                    <td class="text-center"><a href="{% url 'room' room.code %}">Entrar</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            <!-- Modal -->
+            <div class="modal fade text-center" id="room-modal-{{ room.id }}" tabindex="-1"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5 text-center" id="exampleModalLabel">Entrar na sala de
+                                {{ room.dono }}</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="{% url 'entrar' %}" method="POST">
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <input type="hidden" name="room_id" value="{{ room.id }}">
+                                <label>Senha</label>
+                                <input type="text" name="senha" class="form-control">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Entrar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
 
 
 </div>

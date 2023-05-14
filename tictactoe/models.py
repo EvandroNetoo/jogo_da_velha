@@ -1,8 +1,11 @@
 from django.db import models
 import secrets
+from autenticacao.models import User    
 
 
 class Room(models.Model):
+    dono = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    
     code = models.CharField(max_length=16)
     
     privada = models.BooleanField(default=False)
